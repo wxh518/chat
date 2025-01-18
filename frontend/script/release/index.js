@@ -1,12 +1,20 @@
 import { build } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import path from 'path';
+import path, { win32 } from 'path';
 import esbuild from 'esbuild';
 import fs from 'fs';
-import os from 'os';
+import os, { platform } from 'os';
 import env from './env.js';
 import { config } from 'process';
 import builder from "electron-builder";
+
+// 使用 import.meta.url 获取当前模块的目录
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+// 动态获取 src 目录的路径
+const srcPath = path.resolve(__dirname, '../../src'); // 假设 script/dev/index.js 在 src 目录的上一级
+
+console.log('srcPath: ', srcPath);
 
 async function buildRender() {
     let options = {
@@ -17,6 +25,11 @@ async function buildRender() {
             outDir: path.join(process.cwd(), "release/bundled"),
         },
         //plugins: [vue()],
+        resolve: {
+            alias: {
+              '@': srcPath,
+            },
+        },
     };
     await build(options);
 }
@@ -75,7 +88,15 @@ function buildInstaller() {
             productName: "app",
             appId: 'id',
             asar: true,
-            publish: [{provider: "generic", url: ""}]
+            publish: [{provider: "generic", url: ""}],
+            win: {
+                target: [
+                    {
+                        target: "nsis", // 使用 NSIS 作为安装包格式
+                        arch: ["x64", "ia32"] // 支持的架构
+                    }
+                ]
+            }
         },
         project: process.cwd(),
     };
@@ -84,7 +105,10 @@ function buildInstaller() {
 
 // 注意 这四个函数要依次执行
 
-//buildRender();
-//buildMain();
-//buildModule();
-buildInstaller();
+async function myPackage() {
+    await buildRender();
+    buildMain();
+    buildModule();
+    buildInstaller();
+}
+myPackage();

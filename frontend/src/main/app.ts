@@ -12,21 +12,19 @@ app.on('ready', ()=>{
             nodeIntegration: true,
             contextIsolation: false,
         },
-        //frame: false,
+        frame: false,
     });
     console.log(process.env.WEB_PORT);
     if (process.env.ENV_NOW === 'development')
     {
         console.log(`http://localhost:${process.env.WEB_PORT}/`);
         mainWindow.loadURL(`http://localhost:${process.env.WEB_PORT}/`);
+        mainWindow.webContents.openDevTools();
     }
     else{
+        console.log(path.join(__dirname, '/index.html'));
         mainWindow.loadFile(path.join(__dirname, '/index.html'));
     }
-    console.log(path.join(__dirname, '/index.html'));
-    
-
-    mainWindow.webContents.openDevTools();
 
     // 主进程
     // 在主进程中，我们接收端口对象。

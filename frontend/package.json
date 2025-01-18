@@ -19,9 +19,10 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.7",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
+    "axios": "^1.7.9",
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
     "npm-run-all2": "^7.0.2",
