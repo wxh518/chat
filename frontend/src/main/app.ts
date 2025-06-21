@@ -19,7 +19,7 @@ app.on('ready', ()=>{
     {
         console.log(`http://localhost:${process.env.WEB_PORT}/`);
         mainWindow.loadURL(`http://localhost:${process.env.WEB_PORT}/`);
-        mainWindow.webContents.openDevTools();
+        //mainWindow.webContents.openDevTools();
     }
     else{
         console.log(path.join(__dirname, '/index.html'));

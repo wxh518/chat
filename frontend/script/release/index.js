@@ -8,11 +8,8 @@ import env from './env.js';
 import { config } from 'process';
 import builder from "electron-builder";
 
-// 使用 import.meta.url 获取当前模块的目录
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
 // 动态获取 src 目录的路径
-const srcPath = path.resolve(__dirname, '../../src'); // 假设 script/dev/index.js 在 src 目录的上一级
+const srcPath = path.join(process.cwd(), '/src'); // 假设 script/dev/index.js 在 src 目录的上一级
 
 console.log('srcPath: ', srcPath);
 
