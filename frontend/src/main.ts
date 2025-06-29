@@ -5,39 +5,32 @@ import App from './App.vue'
 
 createApp(App).mount('#app')
 
-// 消息端口是成对创建的。 连接的一对消息端口
-// 被称为通道。
-const channel = new MessageChannel()
-
-// port1 和 port2 之间唯一的不同是你如何使用它们。 消息
-// 发送到port1 将被port2 接收，反之亦然。
-const port1 = channel.port1
-const port2 = channel.port2
-
-// 允许在另一端还没有注册监听器的情况下就通过通道向其发送消息
-// 消息将排队等待，直到一个监听器注册为止。
-port2.postMessage({ answer: 42 })
-
-port2.onmessage = (event) => {
-    console.log(event.data);
-}
-// 这次我们通过 ipc 向主进程发送 port1 对象。 类似的，
-// 我们也可以发送 MessagePorts 到其他 frames, 或发送到 Web Workers, 等.
-require('electron').ipcRenderer.postMessage('port', null, [port1])
+// 监听主进程发送的 port
+let port: MessagePort | null = null;
+require('electron').ipcRenderer.on('port', (event) => {
+  console.log('listen port222', event);
+  port = event.ports[0];
+  // 使用 port 进行通信
+  port.onmessage = (event) => {
+    console.log('Received message from main process:', event.data);
+  };
+  port.start();
+  port.postMessage({ message: 'Renderer Process Say Hello' });
+});
 
 export function maximize() {
     console.log('maximize');
-    port2.postMessage({ answer: 1 })
+    port?.postMessage({ answer: 1 })
 }
 
 export function minimize() {
     console.log('minimize');
-    port2.postMessage({ answer: 2 })
+    port?.postMessage({ answer: 2 })
 }
 
 export function close() {
     console.log('close');
-    port2.postMessage({ answer: 3 })
+    port?.postMessage({ answer: 3 })
 }
 
 

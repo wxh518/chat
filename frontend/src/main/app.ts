@@ -1,9 +1,15 @@
 import { log } from 'console';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, MessageChannelMain } from 'electron';
 import path from 'path';
 
+// 添加 remote-debugging-port 设置
+app.commandLine.appendSwitch('remote-debugging-port', '9222');
+console.log('remote-debugging-port set to 9222');
+console.log('Electron process.argv:', process.argv);
+console.log('Electron commandLine switches:', app.commandLine.getSwitchValue('remote-debugging-port'));
+
 let mainWindow: BrowserWindow | null = null;
-app.on('ready', ()=>{
+app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -15,33 +21,36 @@ app.on('ready', ()=>{
         frame: false,
     });
     console.log(process.env.WEB_PORT);
-    if (process.env.ENV_NOW === 'development')
-    {
+    if (process.env.ENV_NOW === 'development') {
         console.log(`http://localhost:${process.env.WEB_PORT}/`);
         mainWindow.loadURL(`http://localhost:${process.env.WEB_PORT}/`);
-        //mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools();
     }
-    else{
+    else {
         console.log(path.join(__dirname, '/index.html'));
         mainWindow.loadFile(path.join(__dirname, '/index.html'));
     }
 
-    // 主进程
-    // 在主进程中，我们接收端口对象。
-    ipcMain.on('port', (event) => {
-        // 当我们在主进程中接收到 MessagePort 对象, 它就成为了
-        // MessagePortMain.
-        const port = event.ports[0]
-        port.postMessage({ answer: 666 });
-    
-        // MessagePortMain 使用了 Node.js 风格的事件 API, 而不是
-        // web 风格的事件 API. 因此使用 .on('message', ...) 而不是 .onmessage = ...
-        port.on('message', (event) => {
+    mainWindow.webContents.on('did-finish-load', () => {
+        // 消息端口是成对创建的。 连接的一对消息端口
+        // 被称为通道。
+        const channel = new MessageChannelMain()
+
+        // port1 和 port2 之间唯一的不同是你如何使用它们。 消息
+        // 发送到port1 将被port2 接收，反之亦然。
+        const port1 = channel.port1
+        const port2 = channel.port2
+
+        // 允许在另一端还没有注册监听器的情况下就通过通道向其发送消息
+        // 消息将排队等待，直到一个监听器注册为止。
+        port1.postMessage({ message: 'Main Process Say Hello' })
+
+        port1.on('message', (event) => {
             // 收到的数据是： { answer: 42 }
             const data = event.data
             console.log(data);
             const { answer } = data;
-            port.postMessage({ answer: answer + 1 });
+            port2.postMessage({ answer: answer + 1 });
             if (answer === 1) {
                 if (mainWindow) {
                     if (mainWindow.isMaximized()) {
@@ -65,9 +74,11 @@ app.on('ready', ()=>{
             }
         })
 
-        // MessagePortMain 阻塞消息直到 .start() 方法被调用
-        port.start()
-  })
+        if (mainWindow) {
+            mainWindow.webContents.postMessage('port', null, [port2]);
+        }
+        port1.start();
+    })
 });
 
 //防止读取本地文件跨域
