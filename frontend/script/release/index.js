@@ -9,7 +9,7 @@ import { config } from 'process';
 import builder from "electron-builder";
 
 // 动态获取 src 目录的路径
-const srcPath = path.join(process.cwd(), '/src'); // 假设 script/dev/index.js 在 src 目录的上一级
+const srcPath = path.join(process.cwd(), '/src/renderer');
 
 console.log('srcPath: ', srcPath);
 

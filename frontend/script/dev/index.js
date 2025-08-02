@@ -7,7 +7,7 @@ import os from 'os';
 import env from './env.js';
 
 // 动态获取 src 目录的路径
-const srcPath = path.join(process.cwd(), '/src'); // 假设 script/dev/index.js 在 src 目录的上一级
+const srcPath = path.join(process.cwd(), '/src/renderer'); // 新结构下，srcPath 指向渲染进程目录
 
 console.log('srcPath: ', srcPath);
 

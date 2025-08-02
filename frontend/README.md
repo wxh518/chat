@@ -1,6 +1,6 @@
-# frontend
+# Chat Electron App
 
-This template should help get you started developing with Vue 3 in Vite.
+本项目基于 Electron + Vite + Vue3，采用主进程与渲染进程物理分离结构，支持高效开发与一键打包。
 
 ## Recommended IDE Setup
 
@@ -14,20 +14,40 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 
 See [Vite Configuration Reference](https://vite.dev/config/).
 
-## Project Setup
+## 目录结构
+
+- `src/main`      —— Electron 主进程代码
+- `src/renderer`  —— 前端渲染进程（Vue3）
+- `public`        —— 静态资源
+- `release/bundled` —— Vite/Electron 打包产物
+- `script/dev`    —— 开发环境启动脚本
+- `script/release`—— 打包发布脚本
+
+## 开发环境启动
 
 ```sh
 npm install
+npm run start
 ```
+- 启动 Vite Dev Server 与 Electron，自动热更新。
 
-### Compile and Hot-Reload for Development
+## 打包生产环境
 
 ```sh
-npm run dev
+npm run mybuild
 ```
+- 自动构建前端、主进程并用 electron-builder 打包，产物在 `release/` 目录。
 
-### Type-Check, Compile and Minify for Production
+## 常见问题与优化
 
-```sh
-npm run build
-```
+- **白屏问题**：生产包需确保 Vite build 自动生成的 index.html 被 Electron 主进程加载。
+- **首屏白屏优化**：主进程窗口创建时 `show: false`，页面 `ready-to-show` 后再显示，避免用户看到白屏。
+- **路径配置**：@ alias 指向 src/renderer，vite.config.ts 已适配。
+
+## 其它说明
+
+- `.DS_Store` 等无关文件已自动忽略（见 .gitignore）。
+- 更多配置见各脚本与配置文件注释。
+
+---
+如有其它问题请参考脚本注释或联系维护者。

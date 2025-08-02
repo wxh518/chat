@@ -14,7 +14,16 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, 'src/renderer'),
     },
   },
+  // build: {
+  //   outDir: path.join(__dirname, 'release/bundled'),
+  // },
+  // publicDir: path.resolve(__dirname, 'public'),
+  // server: {
+  //   fs: {
+  //     allow: [path.resolve(__dirname, 'src/renderer')],
+  //   },
+  // },
 })

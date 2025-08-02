@@ -13,6 +13,7 @@ app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        show: false, // 优化：先不显示，等页面 ready-to-show 再显示
         webPreferences: {
             webSecurity: false,
             nodeIntegration: true,
@@ -30,6 +31,11 @@ app.on('ready', () => {
         console.log(path.join(__dirname, '/index.html'));
         mainWindow.loadFile(path.join(__dirname, '/index.html'));
     }
+
+    // 优化：页面 ready-to-show 后再显示窗口
+    mainWindow.once('ready-to-show', () => {
+        mainWindow && mainWindow.show();
+    });
 
     mainWindow.webContents.on('did-finish-load', () => {
         // 消息端口是成对创建的。 连接的一对消息端口
